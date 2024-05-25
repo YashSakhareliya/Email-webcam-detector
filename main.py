@@ -1,6 +1,7 @@
 import cv2
 import time
 import glob
+import os
 from emailing import send_mail
 
 # start video for create video object
@@ -15,6 +16,14 @@ first_frame = None
 
 status_list = []
 count = 0
+
+
+# clean images
+def clean_folder():
+    filepath = glob.glob("images/*.png")
+    for file in filepath:
+        os.remove(file)
+
 
 #  declare in side loop when loop break video was stopped
 while True:
@@ -54,16 +63,17 @@ while True:
             status = 1
             cv2.imwrite(f"images/{count}.png", frame)
             count = count + 1
-            all_images = glob.glob("images/*.png")
-            index = int(len(all_images) / 2)
-            obj_img = all_images[index]
 
     status_list.append(status)
     status_list = status_list[-2:]
 
     # if object was gone email was sending
     if status_list[0] == 1 and status_list[1] == 0:
+        all_images = glob.glob("images/*.png")
+        index = int(len(all_images) / 2)
+        obj_img = all_images[index]
         send_mail(obj_img)
+        clean_folder()
 
     cv2.imshow('frame', frame)
 
