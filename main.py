@@ -1,5 +1,6 @@
 import cv2
 import time
+import glob
 from emailing import send_mail
 
 # start video for create video object
@@ -13,6 +14,7 @@ time.sleep(1)
 first_frame = None
 
 status_list = []
+count = 0
 
 #  declare in side loop when loop break video was stopped
 while True:
@@ -50,14 +52,18 @@ while True:
         rectangle = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 3)
         if rectangle.any():
             status = 1
+            cv2.imwrite(f"images/{count}.png", frame)
+            count = count + 1
+            all_images = glob.glob("images/*.png")
+            index = int(len(all_images) / 2)
+            obj_img = all_images[index]
 
     status_list.append(status)
     status_list = status_list[-2:]
 
     # if object was gone email was sending
     if status_list[0] == 1 and status_list[1] == 0:
-        send_mail()
-
+        send_mail(obj_img)
 
     cv2.imshow('frame', frame)
 
