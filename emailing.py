@@ -1,7 +1,17 @@
 import smtplib
 import os
 import imghdr
+import glob
+from threading import Thread
 from email.message import EmailMessage
+
+
+# clean the images
+def clean_folder():
+    filepath = glob.glob("images/*.png")
+    for file in filepath:
+        os.remove(file)
+
 
 PASSWORD = os.environ["PASSWORD"]
 SENDER = "sakhareliyayash03@gmail.com"
@@ -23,6 +33,11 @@ def send_mail(image_path):
     gmail.login(SENDER, PASSWORD)
     gmail.sendmail(SENDER, RECEIVER, email_message.as_string())
     gmail.quit()
+    print("Email was send successfully")
+
+    image_thread = Thread(target=clean_folder())
+    image_thread.daemon = True
+    image_thread.start()
 
 
 if __name__ == "__main__":

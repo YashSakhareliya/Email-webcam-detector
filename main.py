@@ -1,8 +1,8 @@
 import cv2
 import time
 import glob
-import os
 from emailing import send_mail
+from threading import Thread
 
 # start video for create video object
 # 0 stand for system inbuilt camera
@@ -16,13 +16,6 @@ first_frame = None
 
 status_list = []
 count = 0
-
-
-# clean images
-def clean_folder():
-    filepath = glob.glob("images/*.png")
-    for file in filepath:
-        os.remove(file)
 
 
 #  declare in side loop when loop break video was stopped
@@ -72,8 +65,13 @@ while True:
         all_images = glob.glob("images/*.png")
         index = int(len(all_images) / 2)
         obj_img = all_images[index]
-        send_mail(obj_img)
-        clean_folder()
+
+        # thread make of send email function run in background
+        email_thread = Thread(target=send_mail, args=(obj_img, ))
+        email_thread.daemon = True
+
+        #  thread of send email was start
+        email_thread.start()
 
     cv2.imshow('frame', frame)
 
